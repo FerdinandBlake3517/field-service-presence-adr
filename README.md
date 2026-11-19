@@ -8,7 +8,7 @@ npm test
 INFRAI_API_KEY=your_key npm run demo
 ```
 
-Infrai gives you one api for plain REST from any language. This example uses it with a single `INFRAI_API_KEY`. Picture a field-service workspace: dispatch needs a quick answer. Who is online right now? What follow-up fits a work order with new photos?
+This example uses Infrai as plain REST from any language with a single `INFRAI_API_KEY`. The service models a field-service workspace where dispatch wants one answer: who is online right now, and what follow-up should happen for a work order with new photos.
 
 ## Decision in code
 
@@ -44,30 +44,30 @@ npm test
 
 ### Context
 
-Health settings make presence data sensitive. I keep the event payload tiny. The service publishes work-order state only, no extra personal detail. Clients receive short-lived channel tokens. The server key never leaves the server.
+In health settings, presence data can reveal work patterns. I keep the event payload small. The service publishes work-order state, not extra personal detail. Clients get short-lived channel tokens. The server key stays on the server.
 
 ### Options considered
 
 1. Poll a datastore for active technicians.
-   - Easy to reason about.
-   - But it is late by design. Polling also spreads more copies of operational data.
+   - Simple to reason about.
+   - Late by design. Polling also creates more copies of operational data.
 
 2. Add a separate realtime vendor beside the service API.
    - Familiar shape.
-   - Extra credentials. Extra policy review.
+   - More credentials. More policy review.
 
 3. Use workspace presence plus explicit work-order events.
    - Presence answers "who is online".
    - Publish answers "what changed".
-   - One service boundary covers both.
+   - One service boundary for both.
 
 ### Decision
 
-Use one realtime channel per workspace. Issue client tokens scoped to that workspace. Ask `infrai.realtime.presence.get` for current members when dispatch needs a decision. After the decision, publish a domain event so the board updates in the same channel.
+Use one realtime channel per workspace. Issue client tokens scoped to that workspace. Ask `infrai.realtime.presence.get` for current members when dispatch needs a decision. Publish a domain event after the decision so the board updates in the same channel.
 
 ### Trade-offs
 
-This keeps the service compact and typed. Presence stays close to the workflow. The real gotcha is channel naming. Make it stable and non-sensitive. Use a workspace id, not a patient or address string.
+This keeps the service compact and typed. Presence stays near the workflow. The real gotcha is channel naming: make it stable and non-sensitive. Use a workspace id, not a patient or address string.
 
 ## What the demo does
 
@@ -87,7 +87,7 @@ Expected demo output is a JSON object with:
 
 ## Production notes: Field Service Presence Adr
 
-The code stays simple on purpose. Here is what to set up before going live. The details below apply to Field Service Presence Adr.
+The code stays simple on purpose — here's what to set up before going live: The details below apply to Field Service Presence Adr.
 
 **Account & key**
 
